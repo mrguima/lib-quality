@@ -1,0 +1,141 @@
+swagger: '2.0'
+info:
+  title: LibQuality
+  description: LibQuality API for Github repositories issues
+  version: 1.0.0
+host: localhost:3000
+basePath: /
+tags:
+  - name: search
+    description: LibQuality search
+schemes:
+  - http
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /search:
+    get:
+      summary: Returns information about opened issues on given repository name
+      tags:
+        - search
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+      - in: query
+        name: name
+        description: Respository name
+        required: true
+        type: string
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SearchResponse'
+        404:
+          description: ERROR
+          schema:
+            type: object
+            example: Repository not found
+            items:
+              $ref: '#/definitions/Error'
+        422:
+          description: ERROR
+          schema:
+            type: object
+            example: Unprocessable entity
+            items:
+              $ref: '#/definitions/Error'
+
+  /list:
+    get:
+      summary: Returns all searched queries
+      tags:
+        - search
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserSearchList'
+  
+
+definitions:
+  SearchResponse:
+    type: object
+    properties:
+      name:
+        type: string
+        example: react
+      issues:
+        type: integer
+        example: 1
+      avg_age:
+        type: integer
+        example: 1
+      std_age:
+        type: integer
+      graph_points:
+        type: array
+        items:
+          $ref: '#/definitions/GraphPoints'
+    required:
+    - name
+    - issues
+    - avg_age
+    - std_age
+    - graph_points
+  UserSearch:
+    type: object
+    properties:
+      id:
+        type: string
+      userName:
+        type: string
+      searchedQuery:
+        type: integer
+      matchedRepository:
+        type: integer
+      searchedAt:
+        type: string
+    required:
+    - id_
+    - userName
+    - searchedQuery
+    - matchedRepository
+    - searchedAt
+  UserSearchList:
+    type: array
+    items:
+      $ref: '#/definitions/UserSearch'
+  GraphPoints:
+    type: object
+    properties:
+      x:
+        type: array
+        items:
+          $ref: '#/definitions/XAxis'
+      y:
+        type: array
+        items:
+          $ref: '#/definitions/YAxis'
+  XAxis:
+    type: string
+    example: 01-2021
+  YAxis:
+    type: integer
+    example: 2
+  Error:
+    type: object
+    properties:
+      message:
+        type: string
